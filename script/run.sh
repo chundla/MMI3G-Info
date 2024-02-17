@@ -9,13 +9,14 @@ INFO_PROCESS=Y
 INFO_MOUNT=Y
 INFO_FLASH=Y
 INFO_FLASH2=Y
-INFO_NAV=Y
+INFO_NAV=N
 INFO_GEMMI=N
 INFO_MEDIA=N
-INFO_SSS=N
+INFO_SSS=Y
 INFO_HW=Y
-INFO_NETWORK=N
+INFO_NETWORK=Y
 INFO_SYSLOG=Y
+INFO_GFS=Y
 
 ### Common functions ###
 xlister(){
@@ -60,9 +61,11 @@ case "$MUVER" in
 MMI3GB) MUVAR="9304" ;;
 MMI3GH) MUVAR="9308" ;;
 MMI3GP)
-  MUVAR="$(sed -n 's,^<VariantName>,,;s,</VariantName>$,,p' \
+  MUVAR="$(sed -n 's,^<VariantName>,,;s,</VariantName>
+$,,p' \
          /etc/mmi3g-srv-starter.cfg)" ;;
 esac # MUVER-MUVAR
+
 echo "[INFO] MU variant: $MUVAR"
 
 ### Get hwSample version ###
@@ -151,9 +154,11 @@ fi # navdb info
 GNDBF=/mnt/gracenode/db/gracenote.txt
 if [ -f "$GNDBF" ]
 then
-  GNPN="$(sed -n 's/^PartNumber=//p' $GNDBF | sed 's/$//')"
+  GNPN="$(sed -n 's/^PartNumber=//p' $GNDBF | sed 's/
+$//')"
   echo; echo "[INFO] Gracenote CD-Database part number: $GNPN"
-  GNSVN="$(sed -n 's/^SoftwareVersionNumber=//p' $GNDBF | sed 's/$//')"
+  GNSVN="$(sed -n 's/^SoftwareVersionNumber=//p' $GNDBF | sed 's/
+$//')"
   echo "[INFO] Gracenote CD-Database version: $GNSVN"
 else
   echo; echo "[INFO] No Gracenote database found on HDD !"
@@ -341,6 +346,19 @@ then
 else
   echo; echo "[INFO] INFO_SYSLOG = N"
 fi # INFO_SYSLOG
+
+if [ "$INFO_GFS" = Y ]; then
+  echo; echo "[INFO] Getting filesystem:"
+  
+  find "/" -print > ${SDTMP}/temp.txt
+
+  while read -r line; do
+    echo "$line" >> ${SDTMP}/filesystem.txt
+  done < ${SDTMP}
+else
+  echo; echo "[INFO] INFO_GFS = N"
+fi # INFO_GFS
+
 
 ### Script cleanup ###
 echo; echo "[INFO] End: $(date); Timestamp: $(getTime)"
